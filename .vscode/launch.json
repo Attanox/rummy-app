@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-RummyApplication<rummy>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.andi.rummy.RummyApplication",
+      "projectName": "rummy",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
