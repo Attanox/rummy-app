@@ -4,7 +4,7 @@ import type {components} from '../api/schema'
 
 type User = components['schemas']['User'];
 
-type AuthStore = {
+interface AuthStore {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;

@@ -28,12 +28,8 @@ export const useLogout = () =>
   });
 
 export const useMe = () =>
-  api.useMutation('get', '/api/v1/auth/me', {
+  api.useQuery('get', '/api/v1/auth/me', {
     enabled: !!useAuthStore((s) => s.token),
-    onSuccess: (data) => {
-      const user = data.user;
-      const token = data.token;
-      useAuthStore.getState().setAuth(user!, token!);
-    },
+    
   });
 

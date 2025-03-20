@@ -145,7 +145,8 @@ export interface components {
         GameDto: {
             /** Format: int32 */
             id?: number;
-            status?: string;
+            /** @enum {string} */
+            status?: "WAITING" | "PLAYING" | "FINISHED";
             players?: string[];
             /** Format: int32 */
             currentPlayerIndex?: number;

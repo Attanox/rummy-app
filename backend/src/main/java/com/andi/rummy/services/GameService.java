@@ -60,7 +60,7 @@ public class GameService {
   public GameDto convertToDto(Game game) {
     GameDto dto = new GameDto();
     dto.setId(game.getId());
-    dto.setStatus(game.getStatus().toString());
+    dto.setStatus(game.getStatus());
     dto.setPlayers(game.getPlayers().stream()
                     .map(User::getUsername)
                     .collect(Collectors.toList()));
