@@ -5,4 +5,18 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [tailwindcss(), react()],
-})
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/ws': {
+        // WebSocket endpoint path
+        target: 'ws://localhost:8080',
+        ws: true, // This is important - flags this as a WebSocket proxy
+        changeOrigin: true,
+      },
+    },
+  },
+});

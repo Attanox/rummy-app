@@ -1,5 +1,5 @@
 import './App.css';
-import React from 'react'
+import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import GameLobbyPage from './routes/GameLobbyPage';
 import AuthLayout from './layouts/AuthLayout';
@@ -13,6 +13,7 @@ import {
 import { useMe } from './api/authApi';
 import AppLayout from './layouts/AppLayout';
 import { useAuthStore } from './store/authStore';
+import GameRoomPage from './routes/GameRoomPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,17 +27,15 @@ const queryClient = new QueryClient({
 const MeProvider = ({
   children,
 }: React.PropsWithChildren<unknown>) => {
-  const { isError } = useMe();
+  const { isError, error, isLoading } = useMe();
   const { clearAuth } = useAuthStore.getState();
 
-
   React.useEffect(() => {
-    if (isError) {
+    if ((isError || error) && !isLoading) {
       console.log('isError', isError);
       clearAuth();
     }
-  }, [])
-
+  }, []);
 
   return children;
 };
@@ -57,6 +56,10 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route index path="/" element={<GameLobbyPage />} />
+                <Route
+                  path="/game/:gameId"
+                  element={<GameRoomPage />}
+                />
               </Route>
             </Route>
 

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router';
 import { useCreateGame, useGames } from '../api/lobbyApi';
 import Alert from '../components/Alert';
 import Button from '../components/Button';
@@ -41,11 +42,31 @@ const CreateGameModal = ({ refetch }: { refetch: () => void }) => {
           </form>
           <form method="dialog">
             {/* if there is a button in form, it will close the modal */}
-            <Button type="submit" variant='btn-secondary' loading={isPending}>Close</Button>
+            <Button
+              type="submit"
+              variant="btn-secondary"
+              loading={isPending}
+            >
+              Close
+            </Button>
           </form>
         </div>
       </div>
     </dialog>
+  );
+};
+
+const JoinGame = ({ gameId }: { gameId: number }) => {
+  const navigate = useNavigate();
+
+  const handleJoin = () => {
+    navigate(`/game/${gameId}`);
+  };
+
+  return (
+    <Button onClick={handleJoin} variant="btn-secondary">
+      Join
+    </Button>
   );
 };
 
@@ -94,8 +115,10 @@ const GameLobbyPage = () => {
                   {game.players?.length} players
                 </div>
               </div>
-              <div className="ml-auto flex items-center">{game.status}</div>
-              <Button variant='btn-secondary'>Join</Button>
+              <div className="ml-auto flex items-center">
+                {game.status}
+              </div>
+              <JoinGame gameId={game.id!} />
             </li>
           );
         })}

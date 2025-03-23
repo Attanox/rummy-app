@@ -78,7 +78,7 @@ public class AuthController {
       Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
       refreshCookie.setHttpOnly(true);
       refreshCookie.setSecure(true); // Use HTTPS in production
-      refreshCookie.setPath("/auth/refresh");
+      refreshCookie.setPath("/api/v1/auth");
       refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
       response.addCookie(refreshCookie);
 

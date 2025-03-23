@@ -5,9 +5,11 @@ import java.util.Map;
 
 import com.andi.rummy.models.Card;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
+@Schema(name = "GameState", description = "Game State")
 public class GameStateDto {
   private Long gameId;
   private String status;

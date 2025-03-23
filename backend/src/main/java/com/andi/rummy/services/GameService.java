@@ -110,9 +110,9 @@ public class GameService {
       throw new RuntimeException("Only the game creator can start the game");
     }
 
-    if (game.getPlayers().size() < MIN_PLAYERS) {
-      throw new RuntimeException("Need at least " + MIN_PLAYERS + " players to start the game");
-    }
+    // if (game.getPlayers().size() < MIN_PLAYERS) {
+    //   throw new RuntimeException("Need at least " + MIN_PLAYERS + " players to start the game");
+    // }
 
     if (game.getStatus() != Game.GameStatus.WAITING) {
       throw new RuntimeException("Game has already started");

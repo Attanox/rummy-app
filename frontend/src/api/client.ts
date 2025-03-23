@@ -23,7 +23,7 @@ export const client = createClient<paths>({
 
     if (res.status === 401) {
       // attempt refresh
-      const refreshRes = await fetch('/auth/refresh', {
+      const refreshRes = await fetch('/api/v1/auth/refresh', {
         method: 'POST',
         credentials: 'include',
       });
