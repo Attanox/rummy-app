@@ -1,6 +1,8 @@
 import { Navigate, useParams } from 'react-router';
 import { useGameSocket } from '../hooks/useGameSocket';
 import Button from '../components/Button';
+import Hand from '../components/Hand';
+import { useEffect } from 'react';
 
 const StartGame = ({ startGame }: { startGame: () => void }) => {
   const handleJoin = async () => {
@@ -20,17 +22,32 @@ const StartGame = ({ startGame }: { startGame: () => void }) => {
 
 const GameRoomPage = () => {
   const { gameId } = useParams();
-  const { gameState, connected, startGame } = useGameSocket({
-    gameId: Number(gameId),
-  });
+  const { gameState, connected, startGame, drawFromDeck } =
+    useGameSocket({
+      gameId: Number(gameId),
+    });
+
+  console.log('gameState', gameState);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (gameState?.yourTurn && gameState.status === 'PLAYING') {
+        drawFromDeck();
+      }
+    }, 500);
+  }, [drawFromDeck, gameState?.yourTurn, gameState?.status]);
 
   if (!gameId) return <Navigate to={'/'} />;
 
   return (
     <div>
-      <pre>{JSON.stringify(gameState)}</pre>
+      <pre className="text-wrap">{JSON.stringify(gameState)}</pre>
       <br />
       <pre>{JSON.stringify(connected)}</pre>
+      <br />
+
+      {gameState?.hand && <Hand hand={gameState?.hand} />}
+
       <StartGame startGame={startGame} />
     </div>
   );

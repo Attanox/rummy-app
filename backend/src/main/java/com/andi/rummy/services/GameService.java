@@ -88,9 +88,9 @@ public class GameService {
   public Game joinGame(Long gameId, String username) {
     Game game = getGame(gameId);
 
-    if (game.getStatus() != Game.GameStatus.WAITING) {
-      throw new RuntimeException("Cannot join a game that has already started");
-    }
+    // if (game.getStatus() != Game.GameStatus.WAITING) {
+    //   throw new RuntimeException("Cannot join a game that has already started");
+    // }
 
     User player = userService.getPlayerByUsername(username);
 

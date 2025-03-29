@@ -63,6 +63,7 @@ public class GameSocketController {
 
     @MessageMapping("/game.drawFromDeck")
     @Operation(summary = "Draw from deck")
+    @Transactional
     public void drawFromDeck(@Payload Map<String, Object> payload, Principal principal) {
         Long gameId = Long.valueOf(payload.get("gameId").toString());
         Game game = gameService.drawFromDeck(gameId, principal.getName());

@@ -14,7 +14,7 @@ public class GameStateDto {
   private Long gameId;
   private String status;
   private String currentPlayerUsername;
-  private boolean isYourTurn;
+  private boolean yourTurn;
   private List<Card> hand;
   private List<List<Card>> melds;
   private Map<String, Integer> playerCardCounts;
