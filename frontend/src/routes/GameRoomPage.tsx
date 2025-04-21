@@ -22,16 +22,21 @@ const StartGame = ({ startGame }: { startGame: () => void }) => {
 
 const GameRoomPage = () => {
   const { gameId } = useParams();
-  const { gameState, connected, startGame, drawFromDeck } =
-    useGameSocket({
-      gameId: Number(gameId),
-    });
+  const {
+    gameState,
+    connected,
+    startGame,
+    drawFromDeck,
+    discardCard,
+  } = useGameSocket({
+    gameId: Number(gameId),
+  });
 
   console.log('gameState', gameState);
 
   useEffect(() => {
     setTimeout(() => {
-      if (gameState?.yourTurn && gameState.status === 'PLAYING') {
+      if (gameState?.yourTurn && gameState?.status === 'PLAYING') {
         drawFromDeck();
       }
     }, 500);
@@ -46,7 +51,9 @@ const GameRoomPage = () => {
       <pre>{JSON.stringify(connected)}</pre>
       <br />
 
-      {gameState?.hand && <Hand hand={gameState?.hand} />}
+      {gameState?.hand && (
+        <Hand hand={gameState?.hand} discardCard={discardCard} />
+      )}
 
       <StartGame startGame={startGame} />
     </div>

@@ -31,7 +31,13 @@ const getId = () => Math.random().toString(16).slice(2);
 
 const getCardId = (c: TCard) => `${c.rank}-${c.suit}-${getId()}`;
 
-const Hand = ({ hand }: { hand: IGameState['hand'] }) => {
+const Hand = ({
+  hand,
+  discardCard,
+}: {
+  hand: IGameState['hand'];
+  discardCard: (suit: string, rank: string) => void;
+}) => {
   const [items, setItems] = React.useState<{
     [key: string]: Array<UniqueIdentifier>;
   }>({
@@ -70,9 +76,12 @@ const Hand = ({ hand }: { hand: IGameState['hand'] }) => {
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
+        <DiscardPile />
+
         {Object.keys(items).map((key) => (
           <CardGroup key={key} id={key} cards={items[key]} />
         ))}
+
         <DragOverlay>
           {activeId ? (
             <CardWrapper card={activeId as string}>
@@ -120,6 +129,7 @@ const Hand = ({ hand }: { hand: IGameState['hand'] }) => {
     }
 
     setItems((prev) => {
+      console.log('dragOver');
       const activeItems = prev[activeContainer];
       const overItems = prev[overContainer];
 
@@ -134,25 +144,6 @@ const Hand = ({ hand }: { hand: IGameState['hand'] }) => {
       } else {
         newIndex =
           overIndex >= 0 ? overIndex + 1 : overItems.length + 1;
-      }
-
-      if (overContainer === NEW_GROUP) {
-        console.log('over', {
-          activeContainer,
-          overContainer,
-          activeIndex,
-          newIndex,
-          overIndex,
-        });
-        // return {
-        //   ...prev,
-        //   [activeContainer]: [
-        //     ...prev[activeContainer].filter(
-        //       (item) => item !== active.id
-        //     ),
-        //   ],
-        //   // [`meld${Object.keys(items).length - 2}`]: [items[activeContainer][activeIndex]],
-        // };
       }
 
       return {
@@ -180,14 +171,30 @@ const Hand = ({ hand }: { hand: IGameState['hand'] }) => {
     if (!over) return;
     const { id: overId } = over;
 
+    console.log('dragEnd');
+
     const activeContainer = findContainer(id);
     const overContainer = findContainer(overId);
+
+    if (overId === 'discard_pile') {
+      setItems((items) => {
+        return clearEmptyMelds({
+          ...items,
+          ['hand']: items['hand'].filter(
+            (handCardId) => handCardId !== id
+          ),
+        });
+      });
+      discardCard(getSuit(id as string), getRank(id as string));
+      return;
+    }
 
     if (
       !activeContainer ||
       !overContainer ||
       activeContainer !== overContainer
     ) {
+      setItems((items) => clearEmptyMelds({ ...items }));
       return;
     }
 
@@ -195,15 +202,8 @@ const Hand = ({ hand }: { hand: IGameState['hand'] }) => {
     const overIndex = items[overContainer].indexOf(overId);
 
     if (overContainer === NEW_GROUP) {
-      console.log('end', {
-        overContainer,
-        activeContainer,
-        activeIndex,
-        overIndex,
-        items: items[overContainer],
-      });
       setItems((items) => {
-        return {
+        return clearEmptyMelds({
           ...items,
           [`meld${Object.keys(items).length + 1}`]: arrayMove(
             items[overContainer],
@@ -211,22 +211,20 @@ const Hand = ({ hand }: { hand: IGameState['hand'] }) => {
             overIndex
           ),
           [NEW_GROUP]: [],
-        };
+        });
       });
       return;
     }
-    console.log({ activeIndex, overIndex });
     if (activeIndex !== overIndex) {
-      console.log('here!!!');
       setItems((items) => {
-        return {
+        return clearEmptyMelds({
           ...items,
           [overContainer]: arrayMove(
             items[overContainer],
             activeIndex,
             overIndex
           ),
-        };
+        });
       });
     }
 
@@ -335,6 +333,71 @@ const CardWrapper = ({
   const suit = getSuit(card);
 
   return <React.Fragment>{children(rank, suit)}</React.Fragment>;
+};
+
+function clearEmptyMelds(melds: {
+  [x: string]: UniqueIdentifier[];
+}): { [key: string]: UniqueIdentifier[] } {
+  const result: { [key: string]: UniqueIdentifier[] } = {};
+
+  Object.keys(melds).forEach((key) => {
+    console.log('melds[key]', melds[key]);
+    if (!isEmpty(melds[key]) || key == NEW_GROUP) {
+      console.log('adding');
+      result[key] = melds[key];
+    }
+  });
+
+  return result;
+}
+
+function isEmpty(meld: UniqueIdentifier[]) {
+  return meld.length === 0;
+}
+
+const DiscardPile = () => {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `discard_pile`,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex gap-2 items-center p-2 rounded border-2 ${
+        isOver ? 'border-red-400 bg-red-100' : 'border-gray-300'
+      }`}
+    >
+      <div style={{ position: 'relative' }}>
+        <div
+          style={{
+            width: '70px',
+            height: '100px',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            backgroundColor: '#eee',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            position: 'relative',
+            top: '0',
+            left: '0',
+          }}
+        ></div>
+        <div
+          style={{
+            width: '70px',
+            height: '100px',
+            border: '1px solid #333',
+            borderRadius: '8px',
+            backgroundColor: '#eee',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            transform: 'rotate(15deg)',
+          }}
+        ></div>
+      </div>
+    </div>
+  );
 };
 
 export default Hand;
