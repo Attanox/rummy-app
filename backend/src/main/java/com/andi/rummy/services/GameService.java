@@ -259,7 +259,7 @@ public class GameService {
         return game;
     }
 
-    private boolean isValidMeld(List<Card> cards) {
+    public boolean isValidMeld(List<Card> cards) {
         if (cards.size() < 3) {
             return false;
         }

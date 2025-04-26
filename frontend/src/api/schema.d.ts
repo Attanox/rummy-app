@@ -56,6 +56,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/games/is-valid-meld": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate meld */
+        post: operations["validateMeld"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/register": {
         parameters: {
             query?: never;
@@ -152,10 +169,6 @@ export interface components {
             currentPlayerIndex?: number;
             currentPlayerUsername?: string;
         };
-        RegisterRequest: {
-            username: string;
-            password: string;
-        };
         Card: {
             /** @enum {string} */
             suit?: "CLUBS" | "DIAMONDS" | "HEARTS" | "SPADES";
@@ -163,6 +176,13 @@ export interface components {
             rank?: "ACE" | "TWO" | "THREE" | "FOUR" | "FIVE" | "SIX" | "SEVEN" | "EIGHT" | "NINE" | "TEN" | "JACK" | "QUEEN" | "KING";
             /** Format: int32 */
             value?: number;
+        };
+        ValidateMeldRequest: {
+            cards?: components["schemas"]["Card"][];
+        };
+        RegisterRequest: {
+            username: string;
+            password: string;
         };
         GrantedAuthority: {
             authority?: string;
@@ -277,6 +297,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["GameDto"];
+                };
+            };
+        };
+    };
+    validateMeld: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValidateMeldRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": boolean;
                 };
             };
         };

@@ -24,6 +24,7 @@ import {
 import { IGameState } from '../hooks/useGameSocket';
 import { components } from '../api/schema';
 import PlayingCard from './PlayingCard';
+import { useValidateMeld } from '../api/gameApi';
 
 const NEW_GROUP = 'new_group';
 
@@ -69,6 +70,7 @@ const Hand = ({
 
   return (
     <div className="flex flex-row">
+      <button className="btn btn-primary">End turn</button>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -247,22 +249,46 @@ export function CardGroup(props: {
 }) {
   const { id, cards } = props;
 
+  const { mutate: validateMeld, data } = useValidateMeld();
+
   const { setNodeRef } = useDroppable({
     id,
   });
 
+  React.useEffect(() => {
+    validateMeld({
+      body: {
+        cards: cards.map((c) => {
+          return {
+            rank: getRank(c as string),
+            suit: getSuit(c as string),
+          };
+        }),
+      },
+    });
+  }, [cards, validateMeld]);
+
   return (
-    <SortableContext
-      id={id}
-      items={cards}
-      strategy={horizontalListSortingStrategy} // Use horizontal strategy
-    >
-      <div ref={setNodeRef} style={containerStyle}>
-        {cards.map((id: UniqueIdentifier, index: number) => (
-          <SortableItem key={`${id}-${index}`} id={id} />
-        ))}
-      </div>
-    </SortableContext>
+    <>
+      {id !== 'hand' && id !== NEW_GROUP && (
+        <input
+          disabled={!data}
+          type="checkbox"
+          className="checkbox checkbox-primary"
+        />
+      )}
+      <SortableContext
+        id={id}
+        items={cards}
+        strategy={horizontalListSortingStrategy} // Use horizontal strategy
+      >
+        <div ref={setNodeRef} style={containerStyle}>
+          {cards.map((id: UniqueIdentifier, index: number) => (
+            <SortableItem key={`${id}-${index}`} id={id} />
+          ))}
+        </div>
+      </SortableContext>
+    </>
   );
 }
 

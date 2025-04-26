@@ -7,10 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.andi.rummy.dto.GameDto;
+import com.andi.rummy.dto.ValidateMeldRequest;
 import com.andi.rummy.models.Game;
 import com.andi.rummy.services.GameService;
 
@@ -53,5 +55,12 @@ public class GameController {
     public ResponseEntity<GameDto> startGame(@PathVariable Long id, Principal principal) {
       Game game = gameService.startGame(id, principal.getName());
       return ResponseEntity.ok(gameService.convertToDto(game));
+    }
+
+    @PostMapping("/is-valid-meld")
+    @Operation(summary = "Validate meld")
+    public ResponseEntity<Boolean> validateMeld(@RequestBody ValidateMeldRequest validateMeldRequest) {
+      Boolean isValid = gameService.isValidMeld(validateMeldRequest.cards);
+      return ResponseEntity.ok(isValid);
     }
 }
