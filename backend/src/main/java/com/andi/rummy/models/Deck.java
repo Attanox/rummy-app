@@ -19,7 +19,7 @@ public class Deck {
               }
           }
         }
-        shuffle();
+        // shuffle();
     }
 
     public void shuffle() {

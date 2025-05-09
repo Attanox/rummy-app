@@ -69,12 +69,12 @@ export const useGameSocket = ({ gameId }: UseGameSocketProps) => {
   );
 
   const declareMeld = useCallback(
-    (cardIndices: number[]) => {
+    (meldCards: TCard[]) => {
       if (!stompClient.current || !connected) return;
 
       stompClient.current.publish({
         destination: '/app/game.declareMeld',
-        body: JSON.stringify({ gameId, cardIndices }),
+        body: JSON.stringify({ gameId, meldCards }),
       });
     },
     [gameId, connected]

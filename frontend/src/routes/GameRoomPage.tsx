@@ -28,6 +28,7 @@ const GameRoomPage = () => {
     startGame,
     drawFromDeck,
     discardCard,
+    declareMeld,
   } = useGameSocket({
     gameId: Number(gameId),
   });
@@ -49,10 +50,16 @@ const GameRoomPage = () => {
       <pre className="text-wrap">{JSON.stringify(gameState)}</pre>
       <br />
       <pre>{JSON.stringify(connected)}</pre>
+
+      <pre className="w-96">{JSON.stringify(gameState)}</pre>
       <br />
 
       {gameState?.hand && (
-        <Hand hand={gameState?.hand} discardCard={discardCard} />
+        <Hand
+          hand={gameState?.hand}
+          discardCard={discardCard}
+          declareMeld={declareMeld}
+        />
       )}
 
       <StartGame startGame={startGame} />

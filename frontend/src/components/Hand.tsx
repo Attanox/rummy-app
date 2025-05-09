@@ -25,6 +25,8 @@ import { IGameState } from '../hooks/useGameSocket';
 import { components } from '../api/schema';
 import PlayingCard from './PlayingCard';
 import { useValidateMeld } from '../api/gameApi';
+import { useGameStore } from '../store/gameStore';
+import Button from './Button';
 
 const NEW_GROUP = 'new_group';
 
@@ -35,9 +37,11 @@ const getCardId = (c: TCard) => `${c.rank}-${c.suit}-${getId()}`;
 const Hand = ({
   hand,
   discardCard,
+  declareMeld,
 }: {
   hand: IGameState['hand'];
   discardCard: (suit: string, rank: string) => void;
+  declareMeld: (cards: TCard[]) => void;
 }) => {
   const [items, setItems] = React.useState<{
     [key: string]: Array<UniqueIdentifier>;
@@ -49,7 +53,6 @@ const Hand = ({
   useEffect(() => {
     if (hand.length !== 15) return;
     const drawnCard = hand[hand.length - 1];
-    console.log('drawFromDeck', drawnCard);
     setItems((items) => ({
       ...items,
       hand: [...items.hand, getCardId(drawnCard)],
@@ -68,9 +71,19 @@ const Hand = ({
 
   console.log('items', items);
 
+  const clearDeclaredMelds = (ids: string[]): void => {
+    setItems((prevItems) => {
+      Object.keys(prevItems).forEach((itemKey) => {
+        if (ids.includes(itemKey)) {
+          delete prevItems[itemKey];
+        }
+      });
+      return prevItems;
+    });
+  };
+
   return (
     <div className="flex flex-row">
-      <button className="btn btn-primary">End turn</button>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -78,6 +91,13 @@ const Hand = ({
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
+        <div className="w-24">
+          <DeclareMelds
+            declareMeld={declareMeld}
+            clearDeclaredMelds={clearDeclaredMelds}
+          />
+        </div>
+
         <DiscardPile />
 
         {Object.keys(items).map((key) => (
@@ -243,13 +263,67 @@ const containerStyle: React.CSSProperties = {
   flexDirection: 'row', // Change to row for horizontal layout
 };
 
+function getCardValues(cardIds: UniqueIdentifier[]): TCard[] {
+  const rankValues: Record<TRank, number> = {
+    TWO: 2,
+    THREE: 3,
+    FOUR: 4,
+    FIVE: 5,
+    SIX: 6,
+    SEVEN: 7,
+    EIGHT: 8,
+    NINE: 9,
+    TEN: 10,
+    JACK: 10,
+    QUEEN: 10,
+    KING: 10,
+    ACE: 10,
+  };
+
+  const meld = cardIds.map((id) => ({
+    rank: getRank(id as string),
+    suit: getSuit(id as string),
+  }));
+
+  return meld.map((card, index) => {
+    const nextCard = meld[index + 1];
+    const prevCard = meld[index - 1];
+
+    if (card.rank === 'ACE') {
+      // Decide whether Ace should be 1 or 10
+      const nextValue = nextCard ? rankValues[nextCard.rank] : null;
+      const prevValue = prevCard ? rankValues[prevCard.rank] : null;
+
+      if (
+        (nextValue && nextValue >= 10) ||
+        (prevValue && prevValue >= 10)
+      ) {
+        return { ...card, value: 1 };
+      } else {
+        return { ...card, value: 10 };
+      }
+    }
+
+    return { ...card, value: rankValues[card.rank] };
+  });
+}
+
 export function CardGroup(props: {
   id: string;
   cards: UniqueIdentifier[];
 }) {
   const { id, cards } = props;
+  const [isDeclaring, setIsDeclaring] = React.useState(false);
+  const { addDeclaring, removeDeclaring } = useGameStore();
 
-  const { mutate: validateMeld, data } = useValidateMeld();
+  const { mutate: validateMeld, data } = useValidateMeld((data) => {
+    if (data) {
+      addDeclaring(getCardValues(cards), id);
+    } else {
+      removeDeclaring(id);
+    }
+    setIsDeclaring(data);
+  });
 
   const { setNodeRef } = useDroppable({
     id,
@@ -273,6 +347,15 @@ export function CardGroup(props: {
       {id !== 'hand' && id !== NEW_GROUP && (
         <input
           disabled={!data}
+          checked={isDeclaring}
+          onChange={(e) => {
+            if (e.currentTarget.checked) {
+              addDeclaring(getCardValues(cards), id);
+            } else {
+              removeDeclaring(id);
+            }
+            setIsDeclaring(e.currentTarget.checked);
+          }}
           type="checkbox"
           className="checkbox checkbox-primary"
         />
@@ -367,9 +450,7 @@ function clearEmptyMelds(melds: {
   const result: { [key: string]: UniqueIdentifier[] } = {};
 
   Object.keys(melds).forEach((key) => {
-    console.log('melds[key]', melds[key]);
     if (!isEmpty(melds[key]) || key == NEW_GROUP) {
-      console.log('adding');
       result[key] = melds[key];
     }
   });
@@ -423,6 +504,40 @@ const DiscardPile = () => {
         ></div>
       </div>
     </div>
+  );
+};
+
+function sumAllMeldValues(melds: Record<string, TCard[]>): number {
+  return Object.values(melds)
+    .flat()
+    .reduce((sum, { value }) => sum + (value || 0), 0);
+}
+
+const DeclareMelds = ({
+  declareMeld,
+  clearDeclaredMelds,
+}: {
+  declareMeld: (cards: TCard[]) => void;
+  clearDeclaredMelds: (ids: string[]) => void;
+}) => {
+  const { declaring } = useGameStore();
+  const meldValues = sumAllMeldValues(declaring);
+
+  const handleDeclaring = () => {
+    clearDeclaredMelds(Object.keys(declaring));
+    Object.keys(declaring).forEach((declaringKey) => {
+      declareMeld(declaring[declaringKey]);
+    });
+  };
+
+  return (
+    <Button
+      disabled={meldValues < 51}
+      variant="btn-secondary"
+      onClick={handleDeclaring}
+    >
+      Declare melds {meldValues}
+    </Button>
   );
 };
 

@@ -1,6 +1,7 @@
 package com.andi.rummy.controllers;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -8,9 +9,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.andi.rummy.dto.DeclareMeldDto;
 import com.andi.rummy.models.Card;
 import com.andi.rummy.models.Game;
 import com.andi.rummy.models.User;
@@ -72,6 +72,7 @@ public class GameSocketController {
 
     @MessageMapping("/game.drawFromDiscard")
     @Operation(summary = "Draw from discard")
+    @Transactional
     public void drawFromDiscard(@Payload Map<String, Object> payload, Principal principal) {
         Long gameId = Long.valueOf(payload.get("gameId").toString());
         Game game = gameService.drawFromDiscard(gameId, principal.getName());
@@ -80,6 +81,7 @@ public class GameSocketController {
 
     @MessageMapping("/game.discard")
     @Operation(summary = "Discard a card")
+    @Transactional
     public void discard(@Payload Map<String, Object> payload, Principal principal) {
         Long gameId = Long.valueOf(payload.get("gameId").toString());
         String suit = payload.get("suit").toString();
@@ -92,12 +94,12 @@ public class GameSocketController {
 
     @MessageMapping("/game.declareMeld")
     @Operation(summary = "Declare meld")
-    public void declareMeld(@Payload Map<String, Object> payload, Principal principal) {
-        Long gameId = Long.valueOf(payload.get("gameId").toString());
-        // Process card indices from payload to form a meld
-        // ...
+    @Transactional
+    public void declareMeld(@Payload DeclareMeldDto payload, Principal principal) {
+        Long gameId = payload.getGameId();
+        List<Card> meldCards = payload.getMeldCards();
 
-        Game game = gameService.declareMeld(gameId, principal.getName(), null);
+        Game game = gameService.declareMeld(gameId, principal.getName(), meldCards);
         updateGameState(game);
     }
 
