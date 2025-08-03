@@ -1,4 +1,6 @@
+import { Fragment } from 'react';
 import { components } from '../api/schema';
+import { getRank, getSuit } from '../utils';
 
 type TCard = components['schemas']['Card'];
 
@@ -71,6 +73,19 @@ const PlayingCard = ({
       <div style={styles.bottomRank}>{rank}</div>
     </div>
   );
+};
+
+export const CardWrapper = ({
+  card,
+  children,
+}: {
+  card: string;
+  children: (rank: TRank, suit: TSuit) => React.ReactNode;
+}) => {
+  const rank = getRank(card);
+  const suit = getSuit(card);
+
+  return <Fragment>{children(rank, suit)}</Fragment>;
 };
 
 export default PlayingCard;

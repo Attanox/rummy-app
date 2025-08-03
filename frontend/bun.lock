@@ -21,6 +21,7 @@
         "sockjs-client": "^1.6.1",
         "tailwindcss": "^4.0.10",
         "ws": "^8.18.1",
+        "xstate": "^5.20.1",
         "zustand": "^5.0.3",
       },
       "devDependencies": {
@@ -800,6 +801,8 @@
     "wrap-ansi-cjs": ["wrap-ansi@7.0.0", "", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q=="],
 
     "ws": ["ws@8.18.1", "", { "peerDependencies": { "bufferutil": "^4.0.1", "utf-8-validate": ">=5.0.2" }, "optionalPeers": ["bufferutil", "utf-8-validate"] }, "sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w=="],
+
+    "xstate": ["xstate@5.20.1", "", {}, "sha512-i9ZpNnm/XhCOMUxae1suT8PjYNTStZWbhmuKt4xeTPaYG5TS0Fz0i+Ka5yxoNPpaHW3VW6JIowrwFgSTZONxig=="],
 
     "yallist": ["yallist@3.1.1", "", {}, "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="],
 

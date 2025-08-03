@@ -1,7 +1,7 @@
 import { Navigate, useParams } from 'react-router';
 import { useGameSocket } from '../hooks/useGameSocket';
 import Button from '../components/Button';
-import Hand from '../components/Hand';
+import PlayerView from '../components/PlayerView';
 import { useEffect } from 'react';
 
 const StartGame = ({ startGame }: { startGame: () => void }) => {
@@ -55,8 +55,10 @@ const GameRoomPage = () => {
       <br />
 
       {gameState?.hand && (
-        <Hand
+        <PlayerView
           hand={gameState?.hand}
+          melds={gameState.melds}
+          topDiscard={gameState.topDiscard}
           discardCard={discardCard}
           declareMeld={declareMeld}
         />
